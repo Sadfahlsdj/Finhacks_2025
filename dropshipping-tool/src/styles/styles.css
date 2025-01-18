@@ -1,3 +1,44 @@
 body {
     background-color: black;
 }
+
+.bg-lightgreen-1 {
+    background-color: #1DD466;
+}
+
+.text-lightgreen-1 {
+    color: #1DD466;
+}
+
+.text-lightgreen-2 {
+    color: #9BE3B6;
+}
+
+.neon-text-glow {
+    background-color: #222; /* Dark background */
+    color: #1DD466;
+    text-shadow: 0 0 5px #1DD466, 0 0 10px #1DD466, 0 0 20px #1DD466, 0 0 40px #1DD466;
+    
+    border: none;
+    border-radius: 5px;
+}
+
+.neon-glow {
+    background-color: #222; /* Dark background */
+    color: #00ffcc;
+    text-shadow: 0 0 5px #00ffcc, 0 0 10px #00ffcc, 0 0 20px #00ffcc, 0 0 40px #00ffcc;
+    box-shadow: 0 0 10px #00ffcc, 0 0 20px #00ffcc, 0 0 30px #00ffcc;
+    border: none;
+    border-radius: 5px;
+}
+
+.neon-glow:hover {
+    box-shadow: 0 0 15px #00ffcc, 0 0 25px #00ffcc, 0 0 50px #00ffcc;
+}
+
+.neon-rectangle {
+    background-color: #222;
+    box-shadow: 
+        0 30px 500px rgba(43, 46, 44, 0.5),  /* Darker glow with reduced opacity */
+        0 0px 200px rgba(12, 148, 67, 0.757); /* Green glow with semi-transparency */
+}
