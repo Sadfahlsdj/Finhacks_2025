@@ -23,45 +23,63 @@ def document_features(document, word_features):
         features['contains({})'.format(word)] = (word in document_words)
     return features
 
-df = pd.read_csv('amazon.csv')
-df.drop(['about_product', 'img_link'], axis=1, inplace=True)
-halfway_len = int(len(df) / 2)
-review_content = list(df['review_content'])
+def create_sentiments(filename, id_col, text_col, output_file):
+    """
 
-def tokenized_modified(t): # tokenize, remove stopwords, and remove punctuation/non alphabetic
-    temp = remove_stopwords(word_tokenize(t))
-    return [w for w in temp if w.isalpha()]
+    :param filename: filename to read in
+    :param text_col: name of column that contains reviews
+    :param output_file: filename to output new csv to
+    :return:
+    """
+    df = pd.read_csv(filename)[:10000]
+    # df.dropna(inplace=True)
+    df[text_col] = df[text_col].astype('str')
+    # df.drop(['about_product', 'img_link'], axis=1, inplace=True)
+    halfway_len = int(len(df) / 2)
+    review_content = list(df[text_col])
 
-tokens = [tokenized_modified(t) for t in review_content]
-# tokens = [[t for t in to if t.isalpha()] for to in tokens] # remove punctuation
+    def tokenized_modified(t): # tokenize, remove stopwords, and remove punctuation/non alphabetic
+        temp = remove_stopwords(word_tokenize(t))
+        return [w for w in temp if w.isalpha()]
 
-stemmer = PorterStemmer()
-lemmatizer = WordNetLemmatizer()
+    tokens = [tokenized_modified(t) for t in review_content]
+    # tokens = [[t for t in to if t.isalpha()] for to in tokens] # remove punctuation
 
-stemmed_tokens = [[stemmer.stem(w) for w in word] for word in tokens]
-lemmatized_tokens = [[lemmatizer.lemmatize(w) for w in word] for word in tokens]
+    # stemmer = PorterStemmer()
+    # lemmatizer = WordNetLemmatizer()
+    #
+    # stemmed_tokens = [[stemmer.stem(w) for w in word] for word in tokens]
+    # lemmatized_tokens = [[lemmatizer.lemmatize(w) for w in word] for word in tokens]
 
-all_words = [word.lower() for review in review_content for word in word_tokenize(review)]
-all_words_freq = FreqDist(chain.from_iterable(tokens))
+    all_words_freq = FreqDist(chain.from_iterable(tokens))
 
-labels = [1 if float(r) > 3.5 else 0 for r in df['rating']]
-# 1 is positive, 0 is negative
+    labels = [1 if float(r) > 3.5 else 0 for r in df['rating']]
+    # 1 is positive, 0 is negative
 
-# can limit to top 2k for testing ([:2000])
-word_features = list(all_words_freq.keys())
+    # can limit to top 2k for testing ([:2000])
+    word_features = list(all_words_freq.keys())
 
-feature_sets = [(document_features(word_tokenize(t), word_features), label)
-                for (t, label) in zip(review_content, labels)]
-train_set, test_set = feature_sets[halfway_len:], feature_sets[:halfway_len]
+    feature_sets = [(document_features(word_tokenize(t), word_features), label)
+                    for (t, label) in zip(review_content, labels)]
+    train_set, test_set = feature_sets[halfway_len:], feature_sets[:halfway_len]
 
-classifier = NaiveBayesClassifier.train(train_set)
-accuracy = nltk.classify.util.accuracy(classifier, test_set)
-print(f'Accuracy: {accuracy * 100:.2f}%')
+    classifier = NaiveBayesClassifier.train(train_set)
+    accuracy = nltk.classify.util.accuracy(classifier, test_set)
+    print(f'Accuracy: {accuracy * 100:.2f}%')
 
-classifier.show_most_informative_features(50)
-scores = [classifier.classify(document_features(tokenized_modified(sent), word_features))
-          for sent in list(review_content)[:halfway_len]]
+    # classifier.show_most_informative_features(50)
+    scores = [classifier.classify(document_features(tokenized_modified(sent), word_features))
+              for sent in list(review_content)[:halfway_len]]
 
-df_output = df.loc[:halfway_len - 1]
-df_output['sentiment'] = scores
-df_output.to_csv('amazon_output.csv', index=False)
+    df_output = df.loc[:halfway_len - 1]
+    df_output['sentiment'] = scores
+
+    out = []
+    for index, row in df_output.iterrows():
+        out.append(f'{row[id_col]}:{row["sentiment"]}\n')
+
+    with open(output_file, 'w') as f:
+        f.writelines(out)
+
+create_sentiments('reviews_megaset.csv', 'parent_asin', 'text',
+                  'sentiment_dict.txt')
