@@ -20,8 +20,8 @@ def get_by_keyword():
 
     # scuffed a bit because pandas onelining hates the "in" keyword
     # using -1 as dummy value for false
-    ind = [i if (keyword.lower() in df.loc[i]['main_category'].str.lower()
-                 or keyword.lower() in df.loc[i]['title'].str.lower())
+    ind = [i if (keyword.lower() in df.loc[i]['main_category'].lower()
+                 or keyword.lower() in df.loc[i]['title'].lower())
            else -1 for i, r in df.iterrows()]
 
     # jsonify the dataframe with indices in above
