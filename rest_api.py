@@ -4,7 +4,7 @@ import pandas as pd
 from scipy import stats
 import subprocess
 import json
-from generate_ad import make_ad
+# from generate_ad import make_ad
 
 app = Flask(__name__)
 CORS(app)
@@ -60,25 +60,25 @@ def get_stats_by_id():
     return pd.DataFrame(out).to_json(orient='records')
 
 
-@app.route('/generate-ad', methods=['POST'])
-def generate_ad():
-    # Get product name from the request JSON
-    data = request.json
-    if 'product' not in data:
-        return jsonify({'error': 'Product name is required'}), 400
+# @app.route('/generate-ad', methods=['POST'])
+# def generate_ad():
+#     # Get product name from the request JSON
+#     data = request.json
+#     if 'product' not in data:
+#         return jsonify({'error': 'Product name is required'}), 400
 
-    product_name = data['product']
+#     product_name = data['product']
     
-    # Call the Python script (generate_ad.py) with the product name
-    try:
-        result = make_ad(product_name)
-        if result.returncode != 0:
-            return jsonify({'error': result.stderr}), 500
+#     # Call the Python script (generate_ad.py) with the product name
+#     try:
+#         result = make_ad(product_name)
+#         if result.returncode != 0:
+#             return jsonify({'error': result.stderr}), 500
 
-        # Assuming the Python script outputs the image or a success message
-        return jsonify({'message': 'Ad generated successfully', 'output': result.stdout})
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+#         # Assuming the Python script outputs the image or a success message
+#         return jsonify({'message': 'Ad generated successfully', 'output': result.stdout})
+#     except Exception as e:
+#         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)

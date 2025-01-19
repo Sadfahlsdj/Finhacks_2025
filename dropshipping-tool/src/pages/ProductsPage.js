@@ -6,6 +6,7 @@ import { Container, Row, Col, Card, Button, InputGroup, Form } from 'react-boots
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../styles/styles.css';
 import useKeywordSearch from '../hooks/useKeywordSearch';
+import useSelectedProduct from '../hooks/useSelectedProduct';
 
 function ProductsPage() {
     const [keyword, setKeyword] = useState("");  // State for capturing the keyword
@@ -16,6 +17,9 @@ function ProductsPage() {
 
     // Use the hook for keyword search
     const { isLoading: searchLoading, error: searchError, data } = useKeywordSearch(searchTriggered ? keyword : "", amount);
+
+    // Ensure selectedProduct is updated when a product is selected
+    const { sentiment, review_score, percentile } = useSelectedProduct(selectedProduct); 
 
     // Handle the input change for the keyword
     const handleKeywordChange = (event) => {
@@ -36,23 +40,23 @@ function ProductsPage() {
     };
 
     // Handle "Generate Ad" button click
-    const handleGenerateAd = async () => {
-        if (!selectedProduct) {
-            return;  // Do nothing if no product is selected
-        }
+    // const handleGenerateAd = async () => {
+    //     if (!selectedProduct) {
+    //         return;  // Do nothing if no product is selected
+    //     }
 
-        try {
-            const response = await axios.post('https://127.0.0.1:5000/generate_ad', {
-                product: selectedProduct.title // Send the product name to the backend
-            });
+    //     try {
+    //         const response = await axios.post('https://127.0.0.1:5000/generate_ad', {
+    //             product: selectedProduct.title // Send the product name to the backend
+    //         });
 
-            if (response.data.image) {
-                setAdImage(response.data.image); // Set the generated image URL
-            }
-        } catch (error) {
-            console.error('Error generating ad:', error);
-        }
-    };
+    //         if (response.data.image) {
+    //             setAdImage(response.data.image); // Set the generated image URL
+    //         }
+    //     } catch (error) {
+    //         console.error('Error generating ad:', error);
+    //     }
+    // };
 
     if (searchError) {
         console.log('Error fetching data: ', searchError);
@@ -124,13 +128,13 @@ function ProductsPage() {
                                 <Card className="bg-dark text-light mb-4">
                                     <Card.Body>
                                         <Card.Title className="text-lightgreen-1">{selectedProduct.title}</Card.Title>
-                                        <Card.Text>Sentiment: {selectedProduct.sentiment}</Card.Text>
-                                        <Card.Text>Review Score: {selectedProduct.review_score}</Card.Text>
-                                        <Card.Text>Percentile: {selectedProduct.percentile}</Card.Text>
+                                        <Card.Text>Sentiment: {sentiment}</Card.Text>
+                                        <Card.Text>Review Score: {review_score}</Card.Text>
+                                        <Card.Text>Percentile: {percentile}</Card.Text>
                                     </Card.Body>
-                                    <Card.Footer className="text-end">
+                                    {/* <Card.Footer className="text-end">
                                         <Button variant="success" onClick={handleGenerateAd}>Generate Ad</Button>                                                
-                                    </Card.Footer>
+                                    </Card.Footer> */}
                                 </Card>
                             </Col>
                         )}
