@@ -8,7 +8,7 @@ function HomePage() {
         <div>
             <Header isNeon={true}/>
             <Container className="text-center text-light">
-                <h1 className="display-1 mt-4 fw-bold text-lightgreen-1">Inquisiv</h1>
+                <h1 className="display-1 mt-4 fw-bold text-lightgreen-1">Inquisiv.</h1>
                 <p className="lead">Streamlining the dropshipping process.</p>
                 <div className="d-flex justify-content-center gap-3 my-4">
                     <Button variant="success" size="lg">

@@ -6,7 +6,7 @@ function Footer() {
             <Container>
                 <Row>
                     <Col>
-                        <p className="mb-0">© Inquisiv 2025</p>
+                        <p className="mb-0">© Inquisiv. 2025</p>
                     </Col>
                     <Col className="text-end">
                     <Nav>

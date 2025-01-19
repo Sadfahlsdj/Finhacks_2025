@@ -8,7 +8,7 @@ function Header({ isNeon }) {
     return (
         <Navbar collapseOnSelect expand="lg" className={`navbar-dark bg-dark ${isNeon ? "neon-rectangle" : ""}`}>
             <Container>
-                <Navbar.Brand className="text-lightgreen-2"href="/">Inquisiv</Navbar.Brand>
+                <Navbar.Brand className="text-lightgreen-2"href="/">Inquisiv.</Navbar.Brand>
                 <Navbar.Toggle aria-controls="responsive-navbar-nav" />
                 <Navbar.Collapse id="responsive-navbar-nav">
                 <Nav className="me-auto">
