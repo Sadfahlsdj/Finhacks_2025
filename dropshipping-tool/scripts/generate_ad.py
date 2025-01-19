@@ -1,12 +1,15 @@
+from diffusers import StableDiffusionPipeline
 import torch
-from diffusers import StableDiffusion3Pipeline
 
-pipe = StableDiffusion3Pipeline.from_pretrained("stabilityai/stable-diffusion-3.5-medium", torch_dtype=torch.bfloat16)
-pipe = pipe.to("cuda")
+# Load Stable Diffusion model
+pipe = StableDiffusionPipeline.from_pretrained("CompVis/stable-diffusion-v-1-4-original")
 
-image = pipe(
-    "A capybara holding a sign that reads Hello World",
-    num_inference_steps=40,
-    guidance_scale=4.5,
-).images[0]
-image.save("capybara.png")
+# For M1/M2 Macs (Metal backend), you don't need CUDA, so use CPU or the Metal backend if available
+pipe.to("mps")  # 'mps' is for macOS Metal API
+
+# Generate an image based on your text prompt
+prompt = "A beautiful landscape painting"
+image = pipe(prompt).images[0]
+
+# Save the generated image
+image.save("generated_image.png")

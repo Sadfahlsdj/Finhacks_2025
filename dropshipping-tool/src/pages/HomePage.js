@@ -26,26 +26,16 @@ function HomePage() {
             <Container className="text-center text-light my-5">
                 <Row>
                     <Col md={4} className="mb-4">
-                        <h3 className="text-lightgreen-1">word1 ⚡</h3>
-                        <p>caption</p>
+                        <h3 className="text-lightgreen-1">AI Product Review ⚡</h3>
+                        <p>Analysis based on reinforcement learning from other datasets on previous success in other products</p>
                     </Col>
                     <Col md={4} className="mb-4">
-                        <h3 className="text-lightgreen-1">word2 ✍️</h3>
-                        <p>caption</p>
+                        <h3 className="text-lightgreen-1">AI Analysis on Marketing Research ✍️</h3>
+                        <p>Selects top/trending dropshipping products sold in current market</p>
                     </Col>
                     <Col md={4} className="mb-4">
-                        <h3 className="text-lightgreen-1">word3 🔧</h3>
-                        <p>caption</p>
-                    </Col>
-                </Row>
-            </Container>
-
-            <Container clasName="text-center text-light my-5">
-                <Row className="justify-content-center">
-                    <Col className="d-flex justify-content-around">
-                        <div className="bg-dark text-light p-4 px-5 rounded">Enter your desired product</div>
-                        <div className="bg-dark text-light p-4 px-5 rounded">Gain data and insights</div>
-                        <div className="bg-dark text-light p-4 px-5 rounded">Generate custom ads</div>
+                        <h3 className="text-lightgreen-1">Agile Marketing Approach 🔧</h3>
+                        <p>Streamlines marketing ad based on specific requests on products for your brand</p>
                     </Col>
                 </Row>
             </Container>
