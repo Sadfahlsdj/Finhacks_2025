@@ -1,17 +1,19 @@
 from flask import Flask, request, jsonify
-import requests
 import pandas as pd
-from itertools import chain
-import re
-import json
 
 app = Flask(__name__)
 
 @app.get('/keyword')
 def get_by_keyword():
+    """
+    keyword - keyword to search by
+    amount - top # to return (default 50 probably)
+    :return:
+    """
     keyword = request.args.get('keyword').lower()
+    amount = int(request.args.get('amount'))
 
-    df = pd.read_csv('items_megaset_with_sentiments_cleaned.csv', index_col=False)
+    df = pd.read_csv('items_megaset_with_categories.csv', index_col=False)
     df.dropna(inplace=True)
     df['main_category'] = df['main_category'].str.lower()
     df['title'] = df['title'].str.lower()
@@ -22,4 +24,6 @@ def get_by_keyword():
            else -1 for i, r in df.iterrows()]
 
     # jsonify the dataframe with indices in above
-    return df.loc[[i for i in ind if i != -1]].to_json(orient='records')
+    df = df.loc[[i for i in ind if i != -1]]
+    df.sort_values(by='predicted_category')
+    return df.head(amount).to_json(orient='records')

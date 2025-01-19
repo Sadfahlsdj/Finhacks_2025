@@ -7,8 +7,8 @@ Original file is located at
     https://colab.research.google.com/drive/1GIKAAR6EXMfJvafih_b5-wWcxP6S5K0e
 """
 
-!pip3 install scikit-learn pandas numpy matplotlib seaborn fairlearn ucimlrepo shap
-!pip3 install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+# !pip3 install scikit-learn pandas numpy matplotlib seaborn fairlearn ucimlrepo shap
+# !pip3 install torch torchvision --index-url https://download.pytorch.org/whl/cpu
 
 import shap
 import torch
