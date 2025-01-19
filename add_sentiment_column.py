@@ -7,6 +7,7 @@ from statistics import mean
 
 df_reviews = pd.read_csv('reviews_megaset.csv')
 df_items = pd.read_csv('items_megaset.csv')
+print(len(df_items))
 df_items = df_items.drop(['images', 'videos', 'details', 'bought_together', 'subtitle', 'author'], axis=1)
 with open('sentiment_dict.txt') as f:
     lines = [l.strip() for l in f.readlines()]
@@ -24,7 +25,7 @@ sentiments = [is_dict[r['parent_asin']] if r['parent_asin'] in is_dict else floa
 
 df_items['sentiments'] = sentiments
 print(df_items.head().to_string())
-df_items.to_csv('items_megaset_with_sentiments.csv_cleaned')
+df_items.to_csv('items_megaset_with_sentiments_cleaned_test.csv')
 
 
 
