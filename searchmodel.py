@@ -224,6 +224,56 @@ df_out_2['predicted_category'] = predicted_classes.cpu().numpy()
 df_out_2.to_csv('test.csv', index=True)
 df_out_2.head()
 
+plt.figure(figsize=(12, 8))
+background_data = X_test_tensor[:100]
+
+m = sklearn.linear_model.LinearRegression()
+m.fit(X_test_df, y_test_df)
+
+print("Model coefficients:\n")
+for i in range(X_test_df.shape[1]):
+    print(X_test_df.columns[i], "=", m.coef_[i].round(5))
+
+explainer = shap.Explainer(m.predict, X_test_df[:100])
+shap_values = explainer(X_test_df[:100])
+sample_ind = 20
+
+shap.partial_dependence_plot(
+    "average_rating",
+    m.predict,
+    X_test_df[:100],
+    ice=False,
+    model_expected_value=True,
+    feature_expected_value=True,
+    shap_values=shap_values[sample_ind : sample_ind + 1, :],
+)
+
+shap.partial_dependence_plot(
+    "sentiments",
+    m.predict,
+    X_test_df[:100],
+    ice=False,
+    model_expected_value=True,
+    feature_expected_value=True,
+    shap_values=shap_values[sample_ind : sample_ind + 1, :],
+)
+
+shap.partial_dependence_plot(
+    "price",
+    m.predict,
+    X_test_df[:100],
+    ice=False,
+    model_expected_value=True,
+    feature_expected_value=True,
+    shap_values=shap_values[sample_ind : sample_ind + 1, :],
+)
+
+shap.plots.beeswarm(shap_values)
+
+shap.plots.bar(shap_values)
+
+shap.plots.beeswarm(shap_values.abs, color="shap_red")
+
 from sklearn.metrics import confusion_matrix
 
 cm = confusion_matrix(y_test, test["mlp_tabular_preds"])
