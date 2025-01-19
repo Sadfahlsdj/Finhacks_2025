@@ -24,21 +24,20 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 
-import torch
 import torch.nn as nn
 from torch.utils.data import TensorDataset, DataLoader
 
 from fairlearn.adversarial import AdversarialFairnessClassifier
-
-import pandas as pd
-import numpy as np
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
+import copy
 
 df = pd.read_csv('items_megaset_with_sentiments.csv')
 df['seller_category'] = pd.qcut(df['rating_number'], q=4, labels=['Low', 'Medium', 'High', 'Top'])
 df = df.dropna()
+df_out = copy.deepcopy(df)
+df_out = df_out.drop(['description', 'features'], axis=1)
 df = df.drop(columns=['Unnamed: 0', 'index', 'main_category', 'title', 'features', 'description', 'categories', 'store'])
 df_cleaned = df.drop_duplicates()
 df_cleaned.set_index('parent_asin', inplace=True)
@@ -48,24 +47,6 @@ df_cleaned['seller_category'] = le.fit_transform(df_cleaned['seller_category'])
 
 df_cleaned
 
-# df = pd.read_csv('amazon_output.csv')
-
-# # Calculate the average rating for each product
-# average_ratings = df.groupby('product_name')['rating'].mean()
-
-# # Add the average rating as a new column to the original DataFrame
-# df['average_rating'] = df['product_name'].map(average_ratings)
-
-# df['rating_count'] = df['rating_count'].str.replace(',', '')
-# df['rating_count'] = pd.to_numeric(df['rating_count'], errors='coerce')
-
-# # Add a new column to classify products as 'best seller' or 'not a best seller'
-# df['seller_category'] = pd.qcut(df['rating_count'], q=4, labels=['Low', 'Medium', 'High', 'Top'])
-
-# print(df.seller_category.value_counts())
-
-# df_cleaned = df.drop(columns=['product_name', 'review_id', 'review_title', 'review_content', 'product_link', 'user_name', 'user_id'])
-
 seed = 42
 
 random.seed(seed)
@@ -73,66 +54,6 @@ np.random.seed(seed)
 torch.manual_seed(seed)
 
 torch.use_deterministic_algorithms(True)
-
-# df_cleaned['category'] = df_cleaned['category'].apply(lambda x: x.split('|')[0])
-
-# df_cleaned['discounted_price'] = df_cleaned['discounted_price'].apply(lambda x: x.replace('₹', '').replace(',', '') if isinstance(x, str) else x).astype(float)
-# df_cleaned['actual_price'] = df_cleaned['actual_price'].apply(lambda x: x.replace('₹', '').replace(',', '') if isinstance(x, str) else x).astype(float)
-
-# # Convert discount_percentage to numeric
-# df_cleaned['discount_percentage'] = df_cleaned['discount_percentage'].apply(lambda x: x.replace('%', '').replace(',', '') if isinstance(x, str) else x).astype(float) / 100
-
-# df_cleaned = df_cleaned.dropna()
-# # Convert rating_count to numeric
-# df_cleaned['rating_count'] = df_cleaned['rating_count'].apply(lambda x: x.replace(',', '') if isinstance(x, str) else x).astype(int)
-
-# # Encode 'best_seller' column
-# le = LabelEncoder()
-# df_cleaned['seller_category'] = le.fit_transform(df_cleaned['seller_category'])
-
-# # Identify numeric and categorical columns
-# numeric_features = ['discounted_price', 'actual_price', 'discount_percentage', 'rating', 'rating_count', 'sentiment', 'average_rating']
-# categorical_features = ['product_id', 'category']
-
-# # Create preprocessing steps
-# preprocessor = ColumnTransformer(
-#     transformers=[
-#         ('num', 'passthrough', numeric_features),
-#         ('cat', OneHotEncoder(handle_unknown='ignore'), categorical_features)
-#     ])
-
-# # Split the data
-# train, test = train_test_split(df_cleaned, train_size=0.7, random_state=seed)
-
-# # Prepare X and y
-# X_train = train.drop(columns=['seller_category'])
-# y_train = train['seller_category']
-# X_test = test.drop(columns=['seller_category'])
-# y_test = test['seller_category']
-
-# # Fit the preprocessor on the training data and transform both training and test data
-# X_train_preprocessed = preprocessor.fit_transform(X_train)
-# X_test_preprocessed = preprocessor.transform(X_test)
-
-# # Convert to PyTorch tensors
-# X_train_tensor = torch.tensor(X_train_preprocessed.toarray(), dtype=torch.float32)
-# y_train_tensor = torch.tensor(y_train.values, dtype=torch.float32).unsqueeze(1)
-
-# X_test_tensor = torch.tensor(X_test_preprocessed.toarray(), dtype=torch.float32)
-# y_test_tensor = torch.tensor(y_test.values, dtype=torch.float32).unsqueeze(1)
-
-# # Create datasets and dataloaders
-# train_dataset = TensorDataset(X_train_tensor, y_train_tensor)
-# test_dataset = TensorDataset(X_test_tensor, y_test_tensor)
-
-# batch_size = 32
-# train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-# val_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
-
-# print(X_train)
-# print(y_train)
-# print(X_test)
-# print(y_test)
 
 train, test = train_test_split(
     df_cleaned, train_size=0.7, random_state=seed
@@ -143,17 +64,11 @@ y_train_df = train['seller_category']
 X_test_df = test.drop(columns=['seller_category'])
 y_test_df = test['seller_category']
 
-
 X_train = X_train_df.values
 y_train = y_train_df.values
 
 X_test = X_test_df.values
 y_test = y_test_df.values
-
-print(X_train)
-print(y_train)
-print(X_test)
-print(y_test)
 
 class MLPTabular(nn.Module):
     def __init__(self, input_size):
@@ -245,7 +160,7 @@ model = MLPTabular(X_train_tensor.shape[1]).to(device)
 criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=0.003)
 
-num_epochs = 200
+num_epochs = 100
 training_losses = []
 for epoch in range(1, num_epochs + 1):
     train_loss, train_accuracy = train_model(model, criterion, optimizer, train_loader, device)
@@ -266,10 +181,23 @@ with torch.no_grad():
 mlp_clf_acc = accuracy_score(test["seller_category"], test["mlp_tabular_preds"]) * 100
 print(f"Accuracy of the MLP Classifier: {mlp_clf_acc:.2f}%")
 
-n_points = int(X_test.shape[0] * 0.01)
-X = X_test_df
-X_test_sampled = shap.kmeans(X, k=n_points)
-feature_names = X_test_df.columns.tolist()
+plt.figure(figsize=(12, 8))
+background_data = X_test_tensor[:100]
+explainer = shap.GradientExplainer(model, background_data)
+
+shap_values = explainer.shap_values(X_test_tensor)
+shap.summary_plot(
+    shap_values,
+    X_test_df,
+    plot_type="bar",
+    max_display=10,
+    show=True
+)
+
+plt.tight_layout()
+plt.xticks(rotation=45, ha='right')
+plt.savefig('shap_summary.png', bbox_inches='tight', dpi=300)
+plt.close()
 
 plt.figure(figsize=(10, 6))
 plt.plot(range(1, num_epochs + 1), training_losses, label='Training Loss')
@@ -280,13 +208,27 @@ plt.grid(True)
 plt.savefig('training_loss.png')
 plt.close()
 
-from sklearn.metrics import confusion_matrix
-import seaborn as sns
+model.eval()
 
-cm = confusion_matrix(y_test_encoded, test["mlp_tabular_preds"])
+with torch.no_grad():
+    test_predictions = model(X_test_tensor)
+    _, predicted_classes = torch.max(test_predictions, dim=1)
+
+test_df = X_test_df.copy()
+test_df['predicted_category'] = predicted_classes.cpu().numpy()
+
+df_out.head()
+df_out_2 = df_out[int(len(df) * 0.7):]
+df_out_2['predicted_category'] = predicted_classes.cpu().numpy()
+
+df_out_2.to_csv('test.csv', index=True)
+df_out_2.head()
+
+from sklearn.metrics import confusion_matrix
+
+cm = confusion_matrix(y_test, test["mlp_tabular_preds"])
 sns.heatmap(cm, annot=True, fmt='d')
 plt.savefig('confusion_matrix.png')
 plt.close()
 
 torch.save(model.state_dict(), 'mlp_tabular_model.pth')
-
