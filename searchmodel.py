@@ -21,6 +21,7 @@ from typing import Dict, List, Tuple
 import seaborn as sns
 import matplotlib.pyplot as plt
 
+import sklearn
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 
